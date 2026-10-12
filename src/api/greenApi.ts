@@ -60,7 +60,7 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 
 export const DEMO_ID_INSTANCE = 'demo'
 
-const isDemo = (credentials: Credentials) => import.meta.env.DEV && credentials.idInstance === DEMO_ID_INSTANCE
+const isDemo = (credentials: Credentials) => credentials.idInstance === DEMO_ID_INSTANCE
 
 export function getStateInstance(credentials: Credentials) {
   if (isDemo(credentials)) return Promise.resolve({ stateInstance: 'authorized' })

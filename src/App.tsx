@@ -5,7 +5,7 @@ import { Messenger } from './components/Messenger'
 import { loadCredentials, saveCredentials } from './storage'
 
 const demoFromUrl = (): Credentials | null =>
-  import.meta.env.DEV && new URLSearchParams(location.search).has('demo')
+  new URLSearchParams(location.search).has('demo')
     ? { apiUrl: DEFAULT_API_URL, idInstance: DEMO_ID_INSTANCE, apiTokenInstance: 'demo' }
     : null
 

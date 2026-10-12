@@ -135,17 +135,15 @@ export function LoginForm({ onLogin }: Props) {
           Войти
         </Button>
 
-        {import.meta.env.DEV && (
-          <Button
-            type="button"
-            variant="secondary"
-            size="large"
-            stretched
-            onClick={() => onLogin({ apiUrl: DEFAULT_API_URL, idInstance: DEMO_ID_INSTANCE, apiTokenInstance: 'demo' })}
-          >
-            Демо без API
-          </Button>
-        )}
+        <Button
+          type="button"
+          variant="secondary"
+          size="large"
+          stretched
+          onClick={() => onLogin({ apiUrl: DEFAULT_API_URL, idInstance: DEMO_ID_INSTANCE, apiTokenInstance: 'demo' })}
+        >
+          Демо без API
+        </Button>
 
         <Typography.Body variant="small" className="muted login__hint">
           Данные инстанса есть в{' '}
