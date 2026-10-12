@@ -24,13 +24,21 @@ export function Messenger({ credentials, onLogout }: Props) {
   useNotifications(
     credentials,
     useCallback((notification: Notification) => dispatch({ type: 'notification', notification }), []),
-    useCallback((e: unknown) => {
-      showError(
-        e instanceof GreenApiError
-          ? `Ошибка получения сообщений (${e.status}). Проверьте, что в настройках инстанса не задан webhookUrl.`
-          : 'Нет соединения с GREEN-API, повторяем...',
-      )
-    }, [showError]),
+    useCallback(
+      (e: unknown) => {
+        if (e instanceof GreenApiError && (e.status === 401 || e.status === 403)) {
+          showError('Доступ к инстансу запрещён. Войдите заново.')
+          onLogout()
+          return
+        }
+        showError(
+          e instanceof GreenApiError
+            ? `Ошибка получения сообщений (${e.status}). Проверьте, что в настройках инстанса не задан webhookUrl.`
+            : 'Нет соединения с GREEN-API, повторяем...',
+        )
+      },
+      [showError, onLogout],
+    ),
   )
 
   const activeChat = chats.find((c) => c.key === activeKey) ?? null

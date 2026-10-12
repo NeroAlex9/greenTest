@@ -1,6 +1,13 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { Button, Input, Typography } from '@maxhub/max-ui'
-import { DEFAULT_API_URL, DEMO_ID_INSTANCE, getStateInstance, GreenApiError, type Credentials } from '../api/greenApi'
+import {
+  DEFAULT_API_URL,
+  DEMO_ID_INSTANCE,
+  getStateInstance,
+  GreenApiError,
+  normalizeApiUrl,
+  type Credentials,
+} from '../api/greenApi'
 
 interface Props {
   onLogin: (credentials: Credentials) => void
@@ -27,7 +34,16 @@ export function LoginForm({ onLogin }: Props) {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    const credentials = { apiUrl: apiUrl.trim() || DEFAULT_API_URL, idInstance, apiTokenInstance }
+    const credentials = {
+      apiUrl: normalizeApiUrl(apiUrl),
+      idInstance: idInstance.trim(),
+      apiTokenInstance: apiTokenInstance.trim(),
+    }
+
+    if (!credentials.apiUrl.startsWith('https://')) {
+      setError('apiUrl должен начинаться с https://')
+      return
+    }
 
     setLoading(true)
     setError(null)

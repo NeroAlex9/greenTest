@@ -29,6 +29,13 @@ export type ChatsAction =
 
 const STATUSES: MessageStatus[] = ['sent', 'delivered', 'read', 'failed']
 
+const STATUS_RANK: Record<MessageStatus, number> = { pending: 0, failed: 1, sent: 2, delivered: 3, read: 4 }
+
+function nextStatus(current: MessageStatus | undefined, incoming: MessageStatus) {
+  if (!current || incoming === 'failed') return incoming
+  return STATUS_RANK[incoming] > STATUS_RANK[current] ? incoming : current
+}
+
 function updateChat(chats: Chat[], key: string, update: (chat: Chat) => Chat) {
   return chats.map((chat) => (chat.key === key ? update(chat) : chat))
 }
@@ -81,6 +88,13 @@ function applyNotification(chats: Chat[], { body }: Notification): Chat[] {
         return updateChat(chats, ownChat.key, (c) => ({ ...c, chatId: c.chatId ?? sender.chatId }))
       }
 
+      const pending = outgoing
+        ? chats.find((c) => !c.chatId && c.messages.some((m) => m.status === 'pending' && m.text === text))
+        : undefined
+      if (pending) {
+        return updateChat(chats, pending.key, (c) => ({ ...c, chatId: sender.chatId }))
+      }
+
       const existing = findChat(chats, sender.chatId, phone)
       if (existing) {
         const updated = updateChat(chats, existing.key, (c) =>
@@ -106,7 +120,7 @@ function applyNotification(chats: Chat[], { body }: Notification): Chat[] {
         chat.messages.some((m) => m.id === body.idMessage)
           ? updateMessage({ ...chat, chatId: chat.chatId ?? body.chatId }, body.idMessage!, (m) => ({
               ...m,
-              status,
+              status: nextStatus(m.status, status),
             }))
           : chat,
       )
@@ -141,7 +155,7 @@ export function chatsReducer(chats: Chat[], action: ChatsAction): Chat[] {
 
     case 'sent':
       return updateChat(chats, action.chatKey, (c) =>
-        updateMessage(c, action.tempId, (m) => ({ ...m, id: action.idMessage, status: 'sent' })),
+        updateMessage(c, action.tempId, (m) => ({ ...m, id: action.idMessage, status: nextStatus(m.status, 'sent') })),
       )
 
     case 'sendFailed':

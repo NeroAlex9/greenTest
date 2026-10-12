@@ -25,5 +25,14 @@ export const loadCredentials = () => read<Credentials>(sessionStorage, CREDENTIA
 export const saveCredentials = (credentials: Credentials | null) =>
   write(sessionStorage, CREDENTIALS_KEY, credentials)
 
-export const loadChats = (idInstance: string) => read<Chat[]>(localStorage, chatsKey(idInstance)) ?? []
+export function loadChats(idInstance: string): Chat[] {
+  const chats = read<Chat[]>(localStorage, chatsKey(idInstance))
+  if (!Array.isArray(chats)) return []
+  return chats
+    .filter((c) => c && typeof c.key === 'string' && Array.isArray(c.messages))
+    .map((c) => ({
+      ...c,
+      messages: c.messages.map((m) => (m.status === 'pending' ? { ...m, status: 'failed' as const } : m)),
+    }))
+}
 export const saveChats = (idInstance: string, chats: Chat[]) => write(localStorage, chatsKey(idInstance), chats)

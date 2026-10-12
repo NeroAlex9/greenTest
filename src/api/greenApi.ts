@@ -92,7 +92,13 @@ export function deleteNotification(credentials: Credentials, receiptId: number) 
 }
 
 export function normalizePhone(value: string) {
-  return value.replace(/\D/g, '')
+  const digits = value.replace(/\D/g, '')
+  return digits.length === 11 && digits.startsWith('8') ? `7${digits.slice(1)}` : digits
+}
+
+export function normalizeApiUrl(value: string) {
+  const url = value.trim().replace(/\/+$/, '') || DEFAULT_API_URL
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`
 }
 
 export function phoneToChatId(phone: string) {
