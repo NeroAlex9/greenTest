@@ -1,66 +1,98 @@
 # MAX Chat на GREEN-API
 
-Тестовое задание «Фронтенд-разработчик React». Это веб-интерфейс для отправки и получения текстовых сообщений в мессенджере [MAX](https://web.max.ru/) через [GREEN-API](https://green-api.com/max).
+Тестовое задание на позицию «Фронтенд-разработчик React».
 
-Стек: **React 19 + TypeScript + Vite**. UI собран на [MAX UI](https://github.com/max-messenger/max-ui), официальной библиотеке компонентов MAX, поэтому интерфейс похож на web.max.ru, а светлая и тёмная темы переключаются автоматически.
+Веб-интерфейс для отправки и получения текстовых сообщений в [MAX](https://web.max.ru/) через [GREEN-API](https://green-api.com/max).
+
+Стек: React 19, TypeScript, Vite, [MAX UI](https://github.com/max-messenger/max-ui).
+
+## Текущий статус
+
+Приложение готово, но проверить его на реальном инстансе пока не получилось. В консоли GREEN-API висит сообщение «API инстансов 3100 не работает», и мой инстанс (сервер `3100.api.green-api.com`) не отвечает на запросы.
+
+Пока API недоступен, интерфейс можно посмотреть в демо-режиме (см. ниже). Он работает без запросов к GREEN-API и имитирует ответы API: статусы сообщений и входящие ответы.
+
+Как только доступ к API появится, я проверю отправку и получение сообщений на реальном инстансе и пришлю итоговый результат.
 
 ## Возможности
 
-- Вход по учётным данным инстанса: `idInstance`, `apiTokenInstance` и `apiUrl` (по умолчанию `https://api.green-api.com`). Данные проверяются через `getStateInstance`, инстанс должен быть авторизован.
-- Создание чата по номеру телефона получателя.
-- Отправка текстовых сообщений методом [SendMessage](https://green-api.com/v3/docs/api/sending/SendMessage/).
-- Получение входящих сообщений по технологии [HTTP API](https://green-api.com/v3/docs/api/receiving/technology-http-api/): long-polling `ReceiveNotification` с последующим `DeleteNotification`.
-- Чаты, начатые собеседником, появляются в списке автоматически.
-- Статусы исходящих сообщений: отправлено, доставлено, прочитано, ошибка.
-- Адаптивная вёрстка: на мобильных экранах список чатов и переписка открываются по очереди.
+- Вход по `idInstance`, `apiTokenInstance` и `apiUrl`. При входе проверяется, что инстанс авторизован (`getStateInstance`).
+- Новый чат по номеру телефона.
+- Отправка сообщений методом [SendMessage](https://green-api.com/v3/docs/api/sending/SendMessage/).
+- Получение сообщений через [HTTP API](https://green-api.com/v3/docs/api/receiving/technology-http-api/): `ReceiveNotification` и `DeleteNotification`.
+- Если собеседник пишет первым, чат появляется в списке сам.
+- Статусы своих сообщений: отправлено, доставлено, прочитано, ошибка.
+- Поиск по чатам, переименование и удаление чата.
+- Тёмная тема в стиле web.max.ru, адаптивная вёрстка под телефон.
 
-Учётные данные хранятся только в `sessionStorage` текущей вкладки. История чатов сохраняется в `localStorage` браузера.
+Логин и токен хранятся только в `sessionStorage` (до закрытия вкладки), история чатов хранится в `localStorage`.
 
-## Подготовка инстанса
-
-1. Зарегистрируйтесь в [консоли GREEN-API](https://console.green-api.com), создайте инстанс для MAX и авторизуйте его.
-2. Скопируйте из карточки инстанса `idInstance`, `apiTokenInstance` и `apiUrl`.
-3. В настройках инстанса **оставьте пустым поле `webhookUrl`**: при заданном URL метод `ReceiveNotification` не работает. Включите уведомления о входящих сообщениях, а также, для статусов и сообщений с телефона, уведомления об исходящих сообщениях и их статусах.
-
-## Локальный запуск
+## Запуск
 
 Нужен Node.js 20.19+ или 22.12+.
 
 ```bash
-git clone <url-репозитория>
+git clone <ссылка на репозиторий>
 cd max-chat
 npm install
 npm run dev
 ```
 
-Откройте адрес, который выведет Vite (обычно http://localhost:5173), и введите данные инстанса.
+После запуска откройте http://localhost:5173.
 
-Production-сборка:
+### Демо-режим
+
+Работает только при `npm run dev`. Есть два способа войти:
+
+- нажать кнопку «Демо без API» на странице входа;
+- открыть сразу http://localhost:5173/?demo.
+
+В демо уже есть один чат. Отправленные сообщения получают статусы «доставлено» и «прочитано», и через пару секунд приходит автоответ. В production-сборку демо-режим не попадает.
+
+### Сборка
 
 ```bash
-npm run build     # результат в dist/
-npm run preview   # локальный просмотр сборки
+npm run build
+npm run preview
 ```
 
-## Деплой на GitHub Pages
+## Настройка инстанса GREEN-API
 
-В репозитории есть workflow `.github/workflows/deploy.yml`. Он собирает проект и публикует его на GitHub Pages при каждом push в `main`. Чтобы его включить, откройте **Settings → Pages → Build and deployment → Source** и выберите **GitHub Actions**.
+1. В [личном кабинете](https://console.green-api.com) создать инстанс MAX и авторизовать его.
+2. Взять из карточки инстанса `idInstance`, `apiTokenInstance` и `apiUrl`.
+3. В настройках инстанса:
+   - поле «Адрес отправки уведомлений (URL)» оставить пустым, иначе `ReceiveNotification` не работает;
+   - включить уведомления о входящих сообщениях;
+   - включить уведомления о сообщениях, отправленных с API, и о статусах отправленных сообщений.
+
+## Как проверить
+
+1. Ввести данные инстанса и войти.
+2. Нажать «+», ввести номер получателя и нажать «Создать».
+3. Написать сообщение и отправить его (Enter).
+4. Ответить на него в MAX с телефона получателя.
+5. Через несколько секунд ответ появится в чате.
+
+## Деплой
+
+Workflow `.github/workflows/deploy.yml` публикует сайт на GitHub Pages при push в `main`. Чтобы он заработал, в настройках репозитория выберите **Settings → Pages → Source → GitHub Actions**.
+
+## Чем пользовался
+
+- **Claude Code**: помощь в написании кода.
+- **ChatGPT**: генерация логотипа.
+- **[MAX UI](https://github.com/max-messenger/max-ui)**: официальная библиотека компонентов MAX, на ней собран интерфейс.
+- **[Консоль GREEN-API](https://console.green-api.com)**: создание и настройка инстанса.
+- Документация GREEN-API: [SendMessage](https://green-api.com/v3/docs/api/sending/SendMessage/), [HTTP API](https://green-api.com/v3/docs/api/receiving/technology-http-api/).
 
 ## Структура
 
 ```
 src/
-  api/greenApi.ts           запросы к GREEN-API
-  state/chats.ts            reducer чатов: отправка, входящие, статусы
-  hooks/useNotifications.ts цикл receiveNotification → deleteNotification
-  components/               LoginForm, Messenger, ChatList, ChatWindow
-  storage.ts                sessionStorage / localStorage
+  api/greenApi.ts            запросы к GREEN-API
+  api/demo.ts                имитация API для демо-режима
+  state/chats.ts             состояние чатов
+  hooks/useNotifications.ts  получение уведомлений
+  components/                компоненты интерфейса
+  storage.ts                 работа с sessionStorage и localStorage
 ```
-
-## Сценарий проверки
-
-1. Введите `idInstance` и `apiTokenInstance` инстанса.
-2. Введите номер получателя (например, `79991234567`) и нажмите «Создать».
-3. Напишите сообщение и отправьте его (Enter или кнопка «Отправить»).
-4. Ответьте на сообщение в MAX с телефона получателя.
-5. Ответ появится в чате через несколько секунд.
