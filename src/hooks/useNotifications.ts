@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { deleteNotification, receiveNotification, type Credentials, type Notification } from '../api/greenApi'
+import { deleteNotification, GreenApiError, receiveNotification, type Credentials, type Notification } from '../api/greenApi'
 
-const RECEIVE_TIMEOUT_SEC = 20
+const RECEIVE_TIMEOUT_SEC = 5
 const RETRY_DELAY_MS = 3000
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -29,6 +29,8 @@ export function useNotifications(
           await deleteNotification(credentials, notification.receiptId)
         } catch (error) {
           if (controller.signal.aborted) return
+          // 408: сервер закрыл долгий запрос раньше времени, новых уведомлений нет
+          if (error instanceof GreenApiError && error.status === 408) continue
           handlers.current.onError(error)
           await sleep(RETRY_DELAY_MS)
         }

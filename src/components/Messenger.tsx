@@ -56,7 +56,8 @@ export function Messenger({ credentials, onLogout }: Props) {
     dispatch({ type: 'send', chatKey, tempId, text })
 
     try {
-      const chatId = activeChat.chatId ?? phoneToChatId(activeChat.phone ?? activeChat.key)
+      // Если номер известен, пишем на него: на бесплатном тарифе разрешён номер, а внутренний chatId MAX может не входить в список
+      const chatId = activeChat.phone ? phoneToChatId(activeChat.phone) : (activeChat.chatId ?? phoneToChatId(activeChat.key))
       const { idMessage } = await sendMessage(credentials, chatId, text)
       dispatch({ type: 'sent', chatKey, tempId, idMessage })
     } catch (e) {

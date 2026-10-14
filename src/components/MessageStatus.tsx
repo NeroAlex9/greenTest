@@ -13,8 +13,9 @@ export function MessageStatus({ status }: { status: Status }) {
   return (
     <span className={`status status--${status}`} title={TITLES[status]}>
       {status === 'pending' && <ClockIcon />}
-      {status === 'sent' && <TicksIcon />}
-      {(status === 'delivered' || status === 'read') && <TicksIcon double />}
+      {/* Как в MAX: одна галочка — отправлено или доставлено, две — прочитано */}
+      {(status === 'sent' || status === 'delivered') && <TicksIcon />}
+      {status === 'read' && <TicksIcon double />}
       {status === 'failed' && <AlertIcon />}
     </span>
   )

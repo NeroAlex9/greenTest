@@ -96,6 +96,12 @@ export function normalizePhone(value: string) {
   return digits.length === 11 && digits.startsWith('8') ? `7${digits.slice(1)}` : digits
 }
 
+// Сервер инстанса задают первые 4 цифры idInstance: 3100123456 → https://3100.api.green-api.com
+export function apiUrlForInstance(idInstance: string) {
+  const digits = idInstance.replace(/\D/g, '')
+  return digits.length >= 4 ? `https://${digits.slice(0, 4)}.api.green-api.com` : DEFAULT_API_URL
+}
+
 export function normalizeApiUrl(value: string) {
   const url = value.trim().replace(/\/+$/, '') || DEFAULT_API_URL
   return /^https?:\/\//i.test(url) ? url : `https://${url}`

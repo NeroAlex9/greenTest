@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { Button, Input, Typography } from '@maxhub/max-ui'
 import {
+  apiUrlForInstance,
   DEFAULT_API_URL,
   DEMO_ID_INSTANCE,
   getStateInstance,
@@ -25,8 +26,10 @@ function Field({ label, htmlFor, children }: { label: string; htmlFor: string; c
 }
 
 export function LoginForm({ onLogin }: Props) {
-  const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL)
   const [idInstance, setIdInstance] = useState('')
+  // null — apiUrl подставляется по idInstance, пока пользователь не ввёл свой
+  const [customApiUrl, setCustomApiUrl] = useState<string | null>(null)
+  const apiUrl = customApiUrl ?? apiUrlForInstance(idInstance)
   const [apiTokenInstance, setApiTokenInstance] = useState('')
   const [showToken, setShowToken] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -121,7 +124,7 @@ export function LoginForm({ onLogin }: Props) {
             placeholder={DEFAULT_API_URL}
             inputMode="url"
             value={apiUrl}
-            onChange={(e) => setApiUrl(e.target.value)}
+            onChange={(e) => setCustomApiUrl(e.target.value || null)}
           />
         </Field>
 
